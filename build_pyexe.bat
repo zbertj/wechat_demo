@@ -8,4 +8,4 @@ rd /s/q dist
 del *.spec
 pyinstaller -i main.ico main.py
 copy config.conf.prod dist\main\config.conf
-exit
+pause

@@ -9,14 +9,15 @@ import global_var as g
 
 
 #判断是否是个合法用户
-def is_legal_user(msg):
+def is_legal_reply_user(msg):
     id = msg["FromUserName"]
     data = itchat.search_friends(userName=msg['FromUserName'])
     nickname = data.get("NickName", None)
-    if nickname in g.applet_nickname_list:
-        return True, nickname
-    else:
+    if nickname == g.applet_nickname_list[0]:
         return False, ""
+    else:
+        return True, nickname
+
 
 #判断是否是个合法用户
 def is_legal_applet_user(msg):
@@ -106,7 +107,7 @@ def friend_chat_auto_reply_router(msg):
         if text in ["auto reply off", "auto reply on", "applet off", "applet on", "prevent withdraw off", "prevent withdraw on"]:
             return
         # just for legal user
-        ok, nickname = is_legal_user(msg)
+        ok, nickname = is_legal_reply_user(msg)
         is_applet_on = g.applet_status_info.get(nickname, {}).get("applet_on", False)
         if ok and g.auto_reply and is_applet_on is False:
             reply_job.friend_chat_handle_tuling(msg)  # robort handler
