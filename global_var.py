@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 # author: zbertj
 
+product_list = """1.图灵机器人
+2.玩游戏
+3.天气
+0.退出程序(switch off)"""
+
 
 # [prevent_withdraw]
 prevent_withdraw_name_list = []

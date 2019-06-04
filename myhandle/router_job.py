@@ -8,13 +8,6 @@ import itchat
 import global_var as g
 
 
-product_list = """1.图灵机器人
-2.玩游戏
-3.其他
-0.推出程序(switch off)"""
-
-
-
 #判断是否是个合法用户
 def is_legal_user(msg):
     id = msg["FromUserName"]
@@ -58,7 +51,7 @@ def friend_chat_applet_router(msg):
                         return
                     reply_job.friend_chat_handle_tuling(msg)#robort handler
                 else:   #out of robort
-                    if text == "switch off":#program exit
+                    if text == "switch off" or text == "0":#program exit
                         g.applet_status_info.update({
                             nickname: {
                                 "applet_on": False,
@@ -69,10 +62,10 @@ def friend_chat_applet_router(msg):
                         return
                     if text == "switch on":#program already on
                         msg.user.send("程序成功已开启")
-                        msg.user.send(product_list)
+                        msg.user.send(g.product_list)
                         return
                     if text == "show list":#show list
-                        msg.user.send(product_list)
+                        msg.user.send(g.product_list)
                         return
                     #function1 图灵机器人
                     if text == "1" or text == "图灵机器人" or text == "1.图灵机器人":
@@ -83,20 +76,24 @@ def friend_chat_applet_router(msg):
                                 "robort_on": True
                             }
                         })
-                        msg.user.send("图灵机器人准备就绪")
+                        msg.user.send("图灵机器人准备就绪,输入exit可退出")
                         return
                     #function2
                     if text == "2":
                         print("选择了2")
+                        msg.user.send("还在开发中")
+                        msg.user.send(g.product_list)
                         return
                     #function3
                     if text == "3":
                         print("选择了3")
+                        msg.user.send("还在开发中")
+                        msg.user.send(g.product_list)
                         return
 
                     #err cmd
                     msg.user.send("这是个错误的指令哦")
-                    msg.user.send(product_list)
+                    msg.user.send(g.product_list)
 
             elif text == "switch on":
                 g.applet_status_info.update({
@@ -106,7 +103,7 @@ def friend_chat_applet_router(msg):
                     }
                 })
                 msg.user.send("程序成功开启")
-                msg.user.send(product_list)
+                msg.user.send(g.product_list)
                 return
 
 
