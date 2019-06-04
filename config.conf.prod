@@ -17,4 +17,4 @@ job_size = 1
 #每天某时某分发送
 #job_1 = day 1 at 11:28 sendmsg 每天多爱自己一点，世界更美 to 自己
 
-job_1 = minutes 1 at 0 sendmsg 田成是个沙雕 to filehelper
+job_1 = minutes 1 at 0 sendmsg 你是个沙雕 to filehelper
