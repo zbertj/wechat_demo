@@ -1,0 +1,20 @@
+[wechat_prevent_withdraw]
+name =
+max_store_size = 200
+
+send_to = filehelper
+
+
+[wechat_applet]
+name =
+
+[wechat_schedule]
+#job的个数，必须给，且要有自定义的job个数一致
+job_size = 1
+
+#job任务，job_1代表第一个任务，所有任务必须job_*
+
+#每天某时某分发送
+#job_1 = day 1 at 11:28 sendmsg 每天多爱自己一点，世界更美 to 自己
+
+job_1 = minutes 1 at 0 sendmsg 田成是个沙雕 to filehelper
