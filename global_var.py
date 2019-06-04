@@ -25,5 +25,5 @@ applet_status_info = {
     # robort_on
 }
 
-#
+# [wechat_schedule]
 schedule_job_list = []
