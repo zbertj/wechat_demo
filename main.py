@@ -15,15 +15,28 @@ import configparser
 # 单聊
 @itchat.msg_register(INCOME_MSG, isFriendChat=True)
 def friend_chat_msg_handle(msg):
-        #小程序功能
-        router_job.friend_chat_applet_router(msg)
-        #防撤回功能
-        router_job.friend_chat_prevent_withdraw_router(msg)
+        router_job.switch_all(msg)
+
+        if g.prevent_withdraw:
+            #防撤回功能第一步
+            router_job.friend_chat_prevent_withdraw_router(msg)
+
+        if g.applet:
+            #小程序功能
+            router_job.friend_chat_applet_router(msg)
+
+        if g.auto_reply:
+            #自动回复功能
+            router_job.friend_chat_auto_reply_router(msg)
+
+
 
 # 再次注册NOTE即通知类型
 @itchat.msg_register(NOTE, isFriendChat=True)
 def msg_handle_note(msg):
-    router_job.friend_chat_note_router(msg)
+    if g.prevent_withdraw:
+        # 防撤回功能第二步
+        router_job.friend_chat_note_router(msg)
 
 # # 群聊
 # @itchat.msg_register(INCOME_MSG, isGroupChat=True)
@@ -65,6 +78,10 @@ def login_call():
     print(g.applet_nickname_list)
     print()
 
+    itchat.send_msg("自动回复功能开启\nauto reply off|on", toUserName="filehelper")
+    itchat.send_msg("防止撤回功能开启\nprevent withdraw off|on", toUserName="filehelper")
+    itchat.send_msg("指令程序功能开启\napplet off|on", toUserName="filehelper")
+
 
 def init():
     # 获取配置文件
@@ -91,7 +108,6 @@ def init():
             g.schedule_job_list.append(one_job_list)
     print("-----schedule_job_list-----")
     print(g.schedule_job_list)
-
 
 
 

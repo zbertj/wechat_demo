@@ -18,6 +18,101 @@ def is_legal_user(msg):
     else:
         return False, ""
 
+#判断是否是个合法用户
+def is_legal_applet_user(msg):
+    id = msg["FromUserName"]
+    data = itchat.search_friends(userName=msg['FromUserName'])
+    nickname = data.get("NickName", None)
+    if nickname in g.applet_nickname_list:
+        return True, nickname
+    else:
+        return False, ""
+
+#判断是否是个合法用户
+def is_legal_prevent_withdraw_user(msg):
+    id = msg["FromUserName"]
+    data = itchat.search_friends(userName=msg['FromUserName'])
+    nickname = data.get("NickName", None)
+    if nickname in g.prevent_withdraw_nickname_list:
+        return True, nickname
+    else:
+        return False, ""
+
+def is_self_cmd(msg):
+    id = msg["FromUserName"]
+    data = itchat.search_friends(userName=msg['FromUserName'])
+    nickname = data.get("NickName", None)
+    to_user = msg["ToUserName"]
+    if nickname == g.applet_nickname_list[0] and to_user == "filehelper":
+        return True
+    else:
+        return False
+
+# ----------------------------------------------------------------
+def switch_all(msg):
+    if is_self_cmd(msg):
+        text = msg["Text"]
+        if text == "status":
+            if g.auto_reply == True:
+                msg.user.send("自动回复已开启")
+            else:
+                msg.user.send("自动回复已关闭")
+
+            if g.applet == True:
+                msg.user.send("小程序已开启")
+            else:
+                msg.user.send("小程序已关闭")
+
+            if g.prevent_withdraw == True:
+                msg.user.send("防撤回已开启")
+            else:
+                msg.user.send("防撤回已关闭")
+
+
+        if text == "auto reply off":
+            g.auto_reply = False
+            msg.user.send("自动回复已关闭")
+        elif text == "auto reply on":
+            g.auto_reply = True
+            msg.user.send("自动回复已开启")
+
+        if text == "applet off":
+            g.applet = False
+            msg.user.send("小程序已关闭")
+        elif text == "applet on":
+            g.applet = True
+            msg.user.send("小程序已开启")
+
+
+        if text == "prevent withdraw off":
+            g.prevent_withdraw = False
+            msg.user.send("防撤回已关闭")
+        elif text == "prevent withdraw on":
+            g.prevent_withdraw = True
+            msg.user.send("防撤回已开启")
+
+
+
+
+
+
+
+# ----------------------------------------------------------------
+def friend_chat_auto_reply_router(msg):
+    if msg.get("MsgType", -1) == 1:
+        text = msg["Text"]
+        if text in ["switch on"]:
+            g.auto_reply = False
+        if text in ["auto reply off", "auto reply on", "applet off", "applet on", "prevent withdraw off", "prevent withdraw on"]:
+            return
+        # just for legal user
+        ok, nickname = is_legal_user(msg)
+        is_applet_on = g.applet_status_info.get(nickname, {}).get("applet_on", False)
+        if ok and g.auto_reply and is_applet_on is False:
+            reply_job.friend_chat_handle_tuling(msg)  # robort handler
+
+
+
 #----------------------------------------------------------------
 def friend_chat_applet_router(msg):
     if msg["MsgType"] == 1:
@@ -25,7 +120,7 @@ def friend_chat_applet_router(msg):
         text = msg["Text"]
 
         # just for legal user
-        ok, nickname = is_legal_user(msg)
+        ok, nickname = is_legal_applet_user(msg)
         if ok:
             is_applet_on = g.applet_status_info.get(nickname, {}).get("applet_on", False)
             if is_applet_on:
@@ -41,6 +136,7 @@ def friend_chat_applet_router(msg):
                         msg.user.send("图灵机器人成功退出")
                         return
                     if text == "switch off":#program exit, set robort_switch false and set status false
+                        g.auto_reply = True
                         g.applet_status_info.update({
                             nickname: {
                                 "applet_on": False,
@@ -51,7 +147,8 @@ def friend_chat_applet_router(msg):
                         return
                     reply_job.friend_chat_handle_tuling(msg)#robort handler
                 else:   #out of robort
-                    if text == "switch off" or text == "0":#program exit
+                    if text == "switch off":#program exit
+                        g.auto_reply = True
                         g.applet_status_info.update({
                             nickname: {
                                 "applet_on": False,
@@ -107,14 +204,13 @@ def friend_chat_applet_router(msg):
                 return
 
 
+
+
 #----------------------------------------------------------------
 def friend_chat_prevent_withdraw_router(msg):
     if msg["MsgType"] == 1:
-        data = itchat.search_friends(userName=msg['FromUserName'])
-        nickname = data.get("NickName",None)
-        # print(nickname,"to",":", msg["Text"])
-
-        if nickname in g.prevent_withdraw_nickname_list:
+        ok, nickname = is_legal_prevent_withdraw_user(msg)
+        if ok:
             msg_time_send = datetime.datetime.fromtimestamp(msg['CreateTime']).strftime('%Y-%m-%d %H:%M:%S')
             msg_id = msg['MsgId']
             msg_content = None
@@ -140,8 +236,6 @@ def friend_chat_prevent_withdraw_router(msg):
             if len(g.prevent_withdraw_msg_info_list) >= g.prevent_withdraw_max_store_size:
                 g.prevent_withdraw_msg_info_list.pop(0)
 
-
-#----------------------------------------------------------------
 def friend_chat_note_router(msg):
     print(msg.get("Text", "00000"))
     if "撤回了一条消息" in msg.get("Text", "00000"):
@@ -159,3 +253,9 @@ def friend_chat_note_router(msg):
                         # print(need_send_info)
                         itchat.send_msg(need_send_info, toUserName=g.prevent_withdraw_send_to)
                         g.prevent_withdraw_msg_info_list.remove(msg_info)
+
+
+
+
+
+

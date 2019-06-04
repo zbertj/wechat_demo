@@ -5,7 +5,7 @@
 product_list = """1.图灵机器人
 2.玩游戏
 3.天气
-0.退出程序(switch off)"""
+退出程序: switch off"""
 
 
 # [prevent_withdraw]
@@ -27,3 +27,9 @@ applet_status_info = {
 
 # [wechat_schedule]
 schedule_job_list = []
+
+
+# [auto_reply]
+auto_reply = True
+applet = True
+prevent_withdraw = True
