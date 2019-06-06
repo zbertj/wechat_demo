@@ -72,9 +72,11 @@ def switch_all(msg):
 
         if text == "auto reply off":
             g.auto_reply = False
+            g.auto_reply_record = False
             msg.user.send("自动回复已关闭")
         elif text == "auto reply on":
             g.auto_reply = True
+            g.auto_reply_record = True
             msg.user.send("自动回复已开启")
 
         if text == "applet off":
@@ -102,8 +104,9 @@ def switch_all(msg):
 def friend_chat_auto_reply_router(msg):
     if msg.get("MsgType", -1) == 1:
         text = msg["Text"]
-        if text in ["switch on"]:
+        if text in ["switch on", "switch_off"]:
             g.auto_reply = False
+
         if text in ["auto reply off", "auto reply on", "applet off", "applet on", "prevent withdraw off", "prevent withdraw on"]:
             return
         # just for legal user
@@ -111,12 +114,14 @@ def friend_chat_auto_reply_router(msg):
         is_applet_on = g.applet_status_info.get(nickname, {}).get("applet_on", False)
         if ok and g.auto_reply and is_applet_on is False:
             reply_job.friend_chat_handle_tuling(msg)  # robort handler
+        elif text in ["switch off"]:
+            g.auto_reply = g.auto_reply_record
 
 
 
 #----------------------------------------------------------------
 def friend_chat_applet_router(msg):
-    if msg["MsgType"] == 1:
+    if msg.get("MsgType", -1) == 1:
         from_user = msg["FromUserName"]
         text = msg["Text"]
 
@@ -137,7 +142,7 @@ def friend_chat_applet_router(msg):
                         msg.user.send("图灵机器人成功退出")
                         return
                     if text == "switch off":#program exit, set robort_switch false and set status false
-                        g.auto_reply = True
+
                         g.applet_status_info.update({
                             nickname: {
                                 "applet_on": False,
@@ -149,7 +154,7 @@ def friend_chat_applet_router(msg):
                     reply_job.friend_chat_handle_tuling(msg)#robort handler
                 else:   #out of robort
                     if text == "switch off":#program exit
-                        g.auto_reply = True
+
                         g.applet_status_info.update({
                             nickname: {
                                 "applet_on": False,
@@ -209,7 +214,7 @@ def friend_chat_applet_router(msg):
 
 #----------------------------------------------------------------
 def friend_chat_prevent_withdraw_router(msg):
-    if msg["MsgType"] == 1:
+    if msg.get("MsgType", -1) == 1:
         ok, nickname = is_legal_prevent_withdraw_user(msg)
         if ok:
             msg_time_send = datetime.datetime.fromtimestamp(msg['CreateTime']).strftime('%Y-%m-%d %H:%M:%S')

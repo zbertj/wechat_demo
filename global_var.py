@@ -31,5 +31,6 @@ schedule_job_list = []
 
 # [auto_reply]
 auto_reply = True
+auto_reply_record = True
 applet = True
 prevent_withdraw = True
